@@ -16,7 +16,11 @@
 	<body>
 			<div id="game-background">
 				<div id="game-menu">
-					<button class="round-btn heartbeat">GO 15!</button>
+					<button class="round-btn heartbeat go">GO 15!</button>
+					<div class="hint">
+						<p>OR</p>
+						<button class="spacebar-btn"><small>(spacebar)</small></button>
+					</div>
 					<ul id="difficulty">
 						<li data-id="1" class="active">Easy</li>
 						<li data-id="2">Medium</li>
@@ -25,8 +29,8 @@
 					</ul>
 				</div>
 				<div id="game-menu-repeat"></div>
-				<canvas id=""></canvas>
-				<canvas id=""></canvas>
+				<div id="game-menu-change"></div>
+				<canvas id="game-board"></canvas>
 			</div>
 			
 	</body>

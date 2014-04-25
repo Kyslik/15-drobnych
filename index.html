@@ -7,16 +7,26 @@
 		<meta name="author" content="Martin Kiesel">
 		<link rel="shortcut icon" href="resources/images/favicon.ico">
 		<link rel="stylesheet" href="resources/css/custom_style.css">
+		<script language="javascript" type="text/javascript" src="resources/js/jquery.js"></script>
+		<script language="javascript" type="text/javascript" src="resources/js/script.js"></script>
 		<script language="javascript" type="text/javascript" src="resources/js/game.js"></script>
+
 		<title>TIA | 15 krúžkov</title>
 	</head>
 	<body>
-		<div id="container">
-			<canvas id="game-background"></canvas>
-			<canvas id="game-menu"></canvas>
-			<canvas id="game-menu-repeat"></canvas>
-			<canvas id=""></canvas>
-			<canvas id=""></canvas>
-		</div>
+			<div id="game-background">
+				<div id="game-menu">
+					<ul id="difficulty">
+						<li data-id="1" class="active">Easy</li>
+						<li data-id="2">Medium</li>
+						<li data-id="3">Hard</li>
+						<li data-id="4">Unbeatable</li>
+					</ul>
+				</div>
+				<div id="game-menu-repeat"></div>
+				<canvas id=""></canvas>
+				<canvas id=""></canvas>
+			</div>
+			
 	</body>
 </html>

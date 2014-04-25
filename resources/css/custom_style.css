@@ -1,3 +1,5 @@
+@import url(fonts.css);
+
 /* RESET START */
 
 html, body, div, span, applet, object, iframe,
@@ -22,7 +24,7 @@ time, mark, audio, video {
 }
 /* HTML5 display-role reset for older browsers */
 article, aside, details, figcaption, figure, 
-footer, header, hgroup, menu, nav, section {
+footer, header, hgroup, menu, nav, section, canvas {
     display: block;
 }
 body {
@@ -46,7 +48,63 @@ table {
 
 /* RESET END */
 
-body {
-  background: #505050;
+* {
+  margin: 0;
+  
 }
 
+*::selection{ background-color: transparent;}
+*::moz-selection{ background-color: transparent;}
+*::webkit-selection{ background-color: transparent;}
+
+body {
+  background: #505050;
+  font-family: 'Josefin Slab', 'serif';
+}
+
+canvas {
+  display: none;
+}
+
+div#game-background {
+  width: 680px;
+  height: 440px;
+  margin: 100px auto;
+  background: #4AB3E7;
+  display: block;
+}
+
+div#game-menu {
+  width: 100%;
+  height: 100%;
+}
+
+div#game-menu ul#difficulty {
+  position: relative;
+  top: 400px;
+/*  width: 100%;
+  overflow: hidden;*/
+  height: 40px;
+  list-style-type: none;
+  text-align: center;
+}
+
+div#game-menu ul#difficulty > li {
+  display: block;
+  width: 25%;
+  margin: 10px auto;
+  padding: 0;
+  color: #559CFA;
+  float: left;
+  font-size: 18px;
+  text-transform: uppercase;
+}
+
+div#game-menu ul#difficulty > li:hover {
+  color: #CBDDF5;
+  cursor: pointer;
+}
+
+div#game-menu ul#difficulty > li.active {
+  color: white;
+}

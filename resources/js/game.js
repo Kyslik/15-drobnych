@@ -38,6 +38,8 @@ function Game(difficulty) {
 	Game.prototype.play = function() {
 		render();
 		setInterval(addMirror, 3000);
+/*		window.setTimeout(addMirror, 3000);
+		window.setTimeout(addMirror, 10000)*/
 	};
 
 	Game.prototype.getDifficulty = function() {
@@ -155,8 +157,9 @@ function Game(difficulty) {
 	};
 
 	function addMirror() {
-		console.log(player.path_cords.length);
+		//console.log(player.path_cords.length);
 		mirrors.push(new Mirror(player.oX, player.oY, player.oRadius, player.path_cords, difficulty));
+		//console.log(mirrors[mirrors.length -1]);
 	}
 
 	function render() {
@@ -179,16 +182,17 @@ function Game(difficulty) {
 	    update(player);
 
 	    for (var i = mirrors.length - 1; i >= 0; i--) {
+
 	    	if (mirrors[i].path.length <= 90) mirrors[i].opacity -= 0.01;//console.log(mirrors[i] + " end of path");
 	    	if (mirrors[i].path.length == 0) {
 	    		mirrors.shift();
 	    		continue;
 	    	}
 
-	    	mirrors[i].angle = mirrors[i].path[mirrors[i].path.length - 1];
+	    	mirrors[i].angle = mirrors[i].path.shift();
 	    	update(mirrors[i]);
-	    	mirrors[i].render(mirrors[i].angle, mirrors[i].opacity);
-	    	mirrors[i].path.pop();
+	    	mirrors[i].render(mirrors[i].angle * 180 / Math.PI, mirrors[i].opacity);
+	    	//mirrors[i].path.pop();
 	    };
 
 	    player.render(player.getAngle() * 180 / Math.PI);

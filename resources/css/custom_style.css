@@ -199,9 +199,9 @@ div#game-menu-change {
   z-index: 999;
 }
 
-canvas#game-board {
+canvas#game-board, canvas#game-player, canvas#game-mirrors {
   display: none;
   width: 100%;
   height: 100%;
-  position: relative;
+  position: absolute;
 }

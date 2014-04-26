@@ -28,37 +28,69 @@ function pulse() {
 };
 
 function displayGameMenu() {
+
 	pulse_on = true;
 	pulse();
 
 	actual_screen = "menu";
 
 	$('#game-menu').css("display", "block");
-	$('#game-menu-repeat').css("display", "none");
-	$('#game-board').css("display", "none");
-	$('button.spacebar-btn').removeClass('active');
+	
+	hideGame();
+	hideGameRepeat();
+}
 
+function hideGameMenu() {
+
+	pulse_on = false;
+	$('#game-menu').css("display", "none");
+	$('button.spacebar-btn').removeClass('active'); //deactivates spacebar "pressed" effect.
 }
 
 function displayGameRepeat() {
+
 	pulse_on = true;
 	pulse();
 
 	actual_screen = "repeat";
 
-	$('#game-menu').css("display", "none");
 	$('#game-menu-repeat').css("display", "block");
-	$('#game-board').css("display", "none");
-	$('button.spacebar-btn').removeClass('active');
+
+	hideGame();
+	hideGameMenu();
+	
+}
+
+function hideGameRepeat() {
+
+	pulse_on = false;
+
+	$('#game-menu-repeat').css("display", "none");
+	$('button.spacebar-btn').removeClass('active'); //deactivates spacebar "pressed" effect.
 }
 
 function displayGame() {
 
 	actual_screen = "game";
 
-	$('#game-menu').css("display", "none");
-	$('#game-menu-repeat').css("display", "none");
 	$('#game-board').css("display", "block");
+	$('#game-player').css("display", "block");
+	$('#game-mirrors').css("display", "block");
+
+	hideGameRepeat();
+	hideGameMenu();
+
+	game = new Game();
+	game.setDifficulty(findDifficulty());
+	game.play();
+	//game.getDifficulty();
+
+}
+
+function hideGame() {
+	$('#game-board').css("display", "none");
+	$('#game-player').css("display", "none");
+	$('#game-mirrors').css("display", "none");
 }
 
 function changeScreen(display) {
@@ -77,6 +109,10 @@ function changeScreen(display) {
 			$('#game-menu-change').css("display", "none");
 		});
 	});
+}
+
+function findDifficulty() {
+	return $('li.active').data('id');
 }
 
 $( document ).ready(function() {

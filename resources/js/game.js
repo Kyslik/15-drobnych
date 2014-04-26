@@ -34,6 +34,8 @@ function Game(difficulty) {
 	var point_interval 	= null;
 	var max_points		= 2;
 
+
+	var square 			= new Square(Math.floor((Math.random()*board_width/2)+1), Math.floor((Math.random()*board_height/2)+1)); //randomly place square
 	this.difficulty 	= difficulty;
 
 	var player 			= new Player(board_width/2, board_height/2, 0, this.difficulty);
@@ -47,8 +49,9 @@ function Game(difficulty) {
 
 	Game.prototype.play = function() {
 		render();
-		mirror_interval = setInterval(addMirror, 1000/difficulty);
+		//mirror_interval = setInterval(addMirror, 1000/difficulty);
 		point_interval = setInterval(addPoint, 4000/difficulty);
+		
 	};
 
 	Game.prototype.getDifficulty = function() {
@@ -106,6 +109,12 @@ function Game(difficulty) {
 	};
 
 	Player.prototype.checkMirrorCollision = function() {
+
+		if (distance(player.ball, square.ball)) {
+			square.pickUp();
+			setTimeout(function() {square.drop()}, 4000);
+		}
+
 		for (var i = points.length - 1; i >= 0; i--) {
 			if (distance(points[i].ball, player.ball)) {
 				points[i].pickUp();
@@ -152,6 +161,52 @@ function Game(difficulty) {
 
 		this.ball.render();
 	}
+
+	function Square (x, y) {
+		this.ball = new Ball(x-2.5, y-2.5, 8, "rgb(255,0,0)");
+		this.x 	  = x;
+		this.y 	  = y;
+
+		this.square_img 	= new Image();
+		this.square_img.src = "./resources/images/square-white.png";
+
+		this.picked_up 		= false;
+		this.fade_out 	 	= false;
+
+		this.opacity 			= 1;
+	}
+
+	Square.prototype.pickUp = function() {
+		if (!this.picked_up) {
+			this.picked_up = true;
+			
+		}
+	};
+
+	Square.prototype.drop = function() {
+		if (this.picked_up) {
+			this.picked_up = false;
+			this.x = Math.floor((Math.random()*board_width/2)+1);
+			this.y = Math.floor((Math.random()*board_height/2)+1);
+			this.ball.update(this.x-2.5, this.y-2.5, this.ball.radius);
+			this.opacity = 1;
+		}
+
+	};
+
+	Square.prototype.render = function () {
+		if (!this.picked_up)
+	   		drawImg(ctx_board, this.square_img, this.x, this.y, 0, 0, 15, 15, 0, 1);
+
+	    if (this.picked_up) {
+	    	if (this.opacity >= 0.2){
+	    		this.opacity -= 0.1*difficulty;
+	    		drawImg(ctx_board, this.square_img, this.x, this.y, 0, 0, 15, 15, 0, this.opacity);
+	    	}
+		}
+
+		//this.ball.render();    
+	};
 
 	function Mirror (x, y, radius, path) {
 		this.ball 			= new Ball(0, 0, 6); //for collision
@@ -253,15 +308,15 @@ function Game(difficulty) {
 
 	    //player.ball.render();
 	    player.checkMirrorCollision();
+	    square.render();
 
 	    for (var i = mirrors.length - 1; i >= 0; i--) {
-	    	if (mirrors[i].path.length <= 90) mirrors[i].opacity -= 0.01;//console.log(mirrors[i] + " end of path");
+	    	if (mirrors[i].path.length <= 90) mirrors[i].opacity -= 0.01; //console.log(mirrors[i] + " end of path");
 	    	//if (mirrors[i].path.length <= 20) mirrors[i].destroyed = true;
 	    	if (mirrors[i].path.length == 0) {
 	    		mirrors.shift();
 	    		continue;
 	    	}
-
 	    	//mirrors[i].checkPlayerCollision();
 
 	    	mirrors[i].angle = mirrors[i].path.shift();

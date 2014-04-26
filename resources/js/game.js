@@ -25,12 +25,14 @@ function Game(difficulty) {
 	var board_width 	= canvas_board.width;
 	var board_height 	= canvas_board.height;
 
+	var desired_score 	= 15;
+
 	var mirrors 		= [];
 	var mirror_interval = null; //interval id
 
 	var points 			= [];
 	var point_interval 	= null;
-	var max_points		= 3;
+	var max_points		= 2;
 
 	this.difficulty 	= difficulty;
 
@@ -96,7 +98,7 @@ function Game(difficulty) {
 
 	Player.prototype.updateScore = function(points) {
     	this.score += points;
-    	
+    	if (this.score == desired_score) endGame();
 	};
 
 	Player.prototype.getPath = function() {
@@ -122,18 +124,30 @@ function Game(difficulty) {
 		this.x 	  = x;
 		this.y 	  = y;
 
-		this.picked_up = false;
+		this.picked_up 		= false;
+		this.fade_out 	 	= false;
+
+		this.fading_dirrection = false;
 	}
 
 	Point.prototype.pickUp = function() {
-		if (!this.picked_up) player.updateScore(this.score + 1);
+		if (!this.picked_up) player.updateScore(1);
 		this.picked_up = true;
+
 	};
 
 	Point.prototype.render = function() {
 		if (this.picked_up) {
-			this.ball.update(this.ball.x - 10, this.ball.y - 10, this.ball.radius - 0.4);
-			//alert(1);
+			this.ball.update(this.ball.x - 10, this.ball.y - 10, this.ball.radius - 0.2*difficulty);
+			
+		}
+
+		if (!this.picked_up && this.fade_out) {
+			if (this.ball.radius <= 8.5 && !this.fading_dirrection) this.ball.update(this.ball.x - 10, this.ball.y - 10, this.ball.radius + 0.1*difficulty);
+			if (this.ball.radius >= 8.5) this.fading_dirrection = true;
+			if (this.ball.radius >= 6.5 && this.fading_dirrection) this.ball.update(this.ball.x - 10, this.ball.y - 10, this.ball.radius - 0.1*difficulty);
+			if (this.ball.radius <= 6.5) this.fading_dirrection = false;
+			
 		}
 
 		this.ball.render();
@@ -168,7 +182,6 @@ function Game(difficulty) {
 
 	Mirror.prototype.checkPlayerCollision = function() {
 		if (distance(this.ball, player.ball)) {
-			console.log("Bum");
 			endGame();
 		}
 	};
@@ -204,13 +217,16 @@ function Game(difficulty) {
 	function addPoint() {
 		if (game_ended) return false;
 
+		if (points.length >= max_points - 1) {
+			points[0].fade_out = true;
+		}
+
 		if (points.length >= max_points) {
 			points.shift();
 		} else {
-			points.push(new Point(Math.floor((Math.random()*board_width-20)+1), Math.floor((Math.random()*board_height-20)+1)));
+			points.push(new Point(Math.floor((Math.random()*board_width/2)+1), Math.floor((Math.random()*board_height/2)+1)));
 		}
 
-		console.log(points);
 	}
 
 	function render() {
@@ -283,14 +299,15 @@ function Game(difficulty) {
 	function endGame() {
 		game_ended = true;
 		//write score etc
+
 		clearInterval(mirror_interval);
+		clearInterval(point_interval);
 	}
 
-	function setDifficulty(obj, difficulty) {
-		
-    	obj.thrust = 1.5*difficulty;
-    	obj.turn_speed = 0.0005*difficulty;
-	    
+	function setDifficulty(obj, difficulty) {	
+
+    	obj.thrust = 1.4*difficulty;
+    	obj.turn_speed = 0.0008*difficulty;
 	}
 
 	function update( obj ) {

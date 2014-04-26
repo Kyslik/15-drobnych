@@ -10,13 +10,13 @@ var actual_screen = "menu";
 
 function pulse() {
 	//if (!pulse_on) return;
-    $('button.heartbeat').animate({
+    $('button.heartbeat').stop().animate({
         width: 200, height: 200, 
         'font-size': 50,
         top: 50,
         opacity: 0.5
     }, 700, function() {
-        $('button.heartbeat').animate({
+        $('button.heartbeat').stop().animate({
             width: 220, height: 220, 
             'font-size': 55,
             top: 40,
@@ -27,13 +27,22 @@ function pulse() {
     }); 
 };
 
-function displayGameMenu() {
-	actual_screen = "menu";
+function displayGameMenu(display) {
+
+	actual_screen = display;
+
+	if (display == "menu") {
+		$('.round-btn.heartbeat').html("GO 15!");
+	}
+
+	if (display == "repeat") {
+		$('.round-btn.heartbeat').html("Try Again!");
+	}
+	
 
 	$('#game-menu').css("display", "block");
 
 	hideGame();
-	hideGameRepeat();
 
 	pulse_on = true;
 	pulse();
@@ -42,28 +51,8 @@ function displayGameMenu() {
 function hideGameMenu() {
 
 	pulse_on = false;
+
 	$('#game-menu').css("display", "none");
-	$('button.spacebar-btn').removeClass('active'); //deactivates spacebar "pressed" effect.
-}
-
-function displayGameRepeat() {
-
-	actual_screen = "repeat";
-
-	$('#game-menu-repeat').css("display", "block");
-
-	hideGame();
-	hideGameMenu();
-
-	pulse_on = true;
-	pulse();
-	
-}
-
-function hideGameRepeat() {
-
-	pulse_on = false;
-	$('#game-menu-repeat').css("display", "none");
 	$('button.spacebar-btn').removeClass('active'); //deactivates spacebar "pressed" effect.
 }
 
@@ -75,7 +64,6 @@ function displayGame() {
 	$('#game-player').css("display", "block");
 	$('#game-mirrors').css("display", "block");
 
-	hideGameRepeat();
 	hideGameMenu();
 
 	game = new Game(findDifficulty());
@@ -94,15 +82,15 @@ function hideGame() {
 
 function changeScreen(display) {
 	$('#game-menu-change').css("display", "block");
-	$('#game-menu-change').animate({
+	$('#game-menu-change').stop().animate({
 		opacity: 1,
 	}, 600, function() {
 
 		if (display == "game") displayGame();
-		if (display == "menu") displayGameMenu();
-		if (display == "repeat") displayGameRepeat();
+		if (display == "menu") displayGameMenu(display);
+		if (display == "repeat") displayGameMenu(display);
 		
-		$(this).animate({
+		$(this).stop().animate({
 			opacity: 0,
 		}, 600, function() {
 			$('#game-menu-change').css("display", "none");
@@ -125,7 +113,7 @@ $( document ).ready(function() {
 });
 
 /*if (actual_screen == "menu" || actual_screen == "repeat") {*/
-$(window).keypress(function(e) {
+$(window).keyup(function(e) {
   if (e.keyCode == 32) {
   	e.preventDefault();
   	if (actual_screen == "menu" || actual_screen == "repeat") {

@@ -126,7 +126,7 @@ function Game(difficulty) {
 	        		mirrors[i].destroyed = true;
 	        	} else {
 	        		if (!mirrors[i].destroyed) {
-	        			console.log("Bum");
+	        			//console.log("Bum");
 						endGame();	
 	        		}
 	
@@ -356,7 +356,7 @@ function Game(difficulty) {
 	    if (!game_ended) {
 	    	requestAnimationFrame(render); //call itself again
 	    } else {
-	    	changeScreen("menu");
+	    	changeScreen("repeat");
 	    }
 
 	}

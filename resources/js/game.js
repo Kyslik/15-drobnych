@@ -1,4 +1,4 @@
-function Game() {
+function Game(difficulty) {
 	console.log("Game loaded");
 
 	var canvas_board 	= 	document.getElementById('game-board');
@@ -24,7 +24,7 @@ function Game() {
 	var mirrors 		= [];
 	var path_cords		= [];
 
-	var difficulty 		= 1; //1,2,3,4
+	this.difficulty 	= difficulty;
 
 	function init() {
 
@@ -34,36 +34,57 @@ function Game() {
 	document.addEventListener('keydown', checkKeyDown, false);
     document.addEventListener('keyup', checkKeyUp, false);
 
-	function Player (x, y, radius) {
-		this.score = 0;
-		this.player_img = new Image();
-		this.player_img.src = "./resources/images/arrow-black-left.png";
-		this.x = x || 0;
-	    this.y = y || 0;
-	    this.radius = radius || 10;
+	function Player (x, y, radius, difficulty) {
+		console.log(difficulty);
+		if (difficulty == 1) {
+	    	this.thrust = 1;
+	    	this.turn_speed = 0.0005;
+	    }
 
-	    this.isThrusting = false;
-	    this.thrust = 1;
-	    this.turnSpeed = 0.001;
-	    this.angle = 0;
+	    if (difficulty == 2) {
+	    	this.thrust = 2;
+	    	this.turn_speed = 0.001;
+	    }
 	    
-	    this.isRightKey = false;
-	    this.isLeftKey 	= false;
+	    if (difficulty == 3) {
+	    	this.thrust = 3;
+	    	this.turn_speed = 0.002;
+	    }
+
+	    if (difficulty == 4) {
+	    	this.thrust = 4;
+	    	this.turn_speed = 0.003;
+	    }
+
+		this.score 			= 0;
+		
+		this.player_img 	= new Image();
+		this.player_img.src = "./resources/images/arrow-black-left.png";
+		
+		this.x 				= x || 0;
+	    this.y 				= y || 0;
+	    this.radius 		= radius || 10;
+
+	    this.is_thrusting 	= false;
+	    this.angle 			= 0;
+	   
+	    this.is_right_key 	= false;
+	    this.is_left_key 	= false;
 	}
 
 	Player.prototype.turn = function(dir) {
-	    this.angle += this.turnSpeed * dir;
+	    this.angle += this.turn_speed * dir;
 	};
 
 	Player.prototype.update = function () {
-	    /* 
-	    * Get the direction we are facing
-	    */
+	    
 	    var radians = this.angle/Math.PI*180;
 	    
-	    if(this.isThrusting){
+	    if(this.is_thrusting) {
+
 	      this.velX = Math.cos(radians) * this.thrust;
 	      this.velY = Math.sin(radians) * this.thrust;
+	    
 	    }
 	    
 	    // bounds check    
@@ -83,7 +104,6 @@ function Game() {
 	        this.y = this.radius;   
 	    }
 	    
-	  
 	    // apply friction
 	    this.velX *= 1.00;
 	    this.velY *= 1.0;
@@ -111,29 +131,28 @@ function Game() {
 		ctx_player.restore();
 	}
 
-	var player = new Player(board_width/2, board_height/2, 0);
+	var player = new Player(board_width/2, board_height/2, 0, difficulty);
 
 	function render() {
 	    // check keys
 	    // up arrow or space
-	    player.isThrusting = true;
+	    player.is_thrusting = true;
 
-	    if (player.isRightKey) {
+	    if (player.is_right_key) {
 	        // right arrow
-	        player.isLeftKey = false;
+	        player.is_left_key = false;
 	        player.turn(1);
 	    }
 
-	    if (player.isLeftKey) {
+	    if (player.is_left_key) {
 	        // left arrow
-	       player.isRightKey = false;
+	       player.is_right_key = false;
 	       player.turn(-1);
 	    }
 	   
-	    
 	    clearCtxPlayer();
 	    player.update();
-	    player.render(player.getAngle()*180/Math.PI);
+	    player.render(player.getAngle() * 180 / Math.PI);
 	    requestAnimationFrame(render);
 	}
 
@@ -145,6 +164,14 @@ function Game() {
     	this.score += points;
 	};
 
+	Game.prototype.play = function() {
+		render();
+	};
+
+	Game.prototype.getDifficulty = function() {
+		console.log(this.difficulty);
+	};
+
 	function checkKeyDown(e) {
 
 	    var keyID = e.keyCode || e.which;
@@ -154,7 +181,7 @@ function Game() {
 	    }
 
 	    if (keyID === 39 || keyID === 68) { //right arrow or D key
-	        player.isRightKey = true;
+	        player.is_right_key = true;
 	        e.preventDefault();
 	    }
 
@@ -163,54 +190,29 @@ function Game() {
 	    }
 
 	    if (keyID === 37 || keyID === 65) { //left arrow or A key
-	        player.isLeftKey = true;
+	        player.is_left_key = true;
 	        e.preventDefault();
 	    }
+
 	}
 
 	function checkKeyUp(e) {
 
 	    var keyID = e.keyCode || e.which;
 
-	/*    if (keyID === 38 || keyID === 87) { //up arrow or W key
-	        isUpKey = false;
-	        e.preventDefault();
-	    }*/
-
 	    if (keyID === 39 || keyID === 68) { //right arrow or D key
-	        player.isRightKey = false;
+	        player.is_right_key = false;
 	        e.preventDefault();
 	    }
-
-	/*    if (keyID === 40 || keyID === 83) { //down arrow or S key
-	        isDownKey = false;
-	        e.preventDefault();
-	    }*/
 
 	    if (keyID === 37 || keyID === 65) { //left arrow or A key
-	        player.isLeftKey = false;
+	        player.is_left_key = false;
 	        e.preventDefault();
 	    }
 
-	/*    if (keyID === 32) { //spacebar
-	        isSpacebar = false;
-	        e.preventDefault();
-	    }*/
-
 	}
-
-	Game.prototype.play = function() {
-		render();
-	};
 
 }
 
 
 
-Game.prototype.setDifficulty = function(difficulty) {
-	this.difficulty = difficulty;
-};
-
-Game.prototype.getDifficulty = function() {
-	console.log(this.difficulty);
-};

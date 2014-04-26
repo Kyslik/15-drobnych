@@ -80,8 +80,7 @@ function displayGame() {
 	hideGameRepeat();
 	hideGameMenu();
 
-	game = new Game();
-	game.setDifficulty(findDifficulty());
+	game = new Game(findDifficulty());
 	game.play();
 	//game.getDifficulty();
 

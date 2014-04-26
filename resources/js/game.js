@@ -26,6 +26,11 @@ function Game(difficulty) {
 	var board_height 	= canvas_board.height;
 
 	var mirrors 		= [];
+	var mirror_interval = null; //interval id
+
+	var points 			= [];
+	var point_interval 	= null;
+	var max_points		= 3;
 
 	this.difficulty 	= difficulty;
 
@@ -40,16 +45,17 @@ function Game(difficulty) {
 
 	Game.prototype.play = function() {
 		render();
-		setInterval(addMirror, 1000);
-/*		window.setTimeout(addMirror, 3000);
-		window.setTimeout(addMirror, 10000)*/
+		mirror_interval = setInterval(addMirror, 1000);
+		point_interval = setInterval(addPoint, 4000);
 	};
 
 	Game.prototype.getDifficulty = function() {
 		return this.difficulty;
 	};
 
-	
+	Game.prototype.restart = function() {
+		endGame();
+	};
 
 	function Player (x, y, radius) {
 		this.ball 			= new Ball(0, 0, 9); //for collision
@@ -98,7 +104,11 @@ function Game(difficulty) {
 	};
 
 	Player.prototype.checkMirrorCollision = function() {
-
+		for (var i = points.length - 1; i >= 0; i--) {
+			if (distance(points[i].ball, player.ball)) {
+				points[i].pickUp();
+			}
+		};
 	    for (var i = 0; i < mirrors.length; i++) {
 	        if (distance(mirrors[i].ball, player.ball)) {
 				console.log("Bum");
@@ -106,6 +116,28 @@ function Game(difficulty) {
 			}
 	    }
 	};
+
+	function Point (x, y) {
+		this.ball = new Ball(x, y, 7, "rgb(255,255,255)");
+		this.x 	  = x;
+		this.y 	  = y;
+
+		this.picked_up = false;
+	}
+
+	Point.prototype.pickUp = function() {
+		if (!this.picked_up) player.updateScore(this.score + 1);
+		this.picked_up = true;
+	};
+
+	Point.prototype.render = function() {
+		if (this.picked_up) {
+			this.ball.update(this.ball.x - 10, this.ball.y - 10, this.ball.radius - 0.2);
+			//alert(1);
+		}
+
+		this.ball.render();
+	}
 
 	function Mirror (x, y, radius, path) {
 		this.ball 			= new Ball(0, 0, 6); //for collision
@@ -142,20 +174,16 @@ function Game(difficulty) {
 	};
 
 	function Ball (x, y, radius, color) {
-	    this.x = x +10;
-	    this.y = y +10;
-	    this.radius = radius;
-	    this.color = color || "rgb(255,0,0)";
-
-	    /*this.x -= this.radius / 2;
-	    this.y -= this.radius / 2;*/
-	}
-
-	Ball.prototype.update = function (x, y) {
 	    this.x = x + 10;
 	    this.y = y + 10;
-	    /*this.x -= this.radius / 2;
-	    this.y -= this.radius / 2;*/
+	    this.radius = radius;
+	    this.color = color || "rgb(255,0,0)";
+	}
+
+	Ball.prototype.update = function (x, y, radius) {
+	    this.x = x + 10;
+	    this.y = y + 10;
+	    this.radius = radius || this.radius;
 	};
 
 	Ball.prototype.render = function () {
@@ -168,13 +196,24 @@ function Game(difficulty) {
 
 	function addMirror() {
 		//console.log(player.path_cords.length);
+		if (game_ended) return false;
 		mirrors.push(new Mirror(player.oX, player.oY, player.oRadius, player.path_cords));
 		setDifficulty(mirrors[mirrors.length - 1], difficulty);
 	}
 
+	function addPoint() {
+		if (game_ended) return false;
+
+		if (points.length >= max_points) {
+			points.shift();
+		} else {
+			points.push(new Point(Math.floor((Math.random()*board_width-20)+1), Math.floor((Math.random()*board_height-20)+1)));
+		}
+
+		console.log(points);
+	}
 
 	function render() {
-
 	    if (player.is_right_key) {
 	        // right arrow
 	        player.is_left_key = false;
@@ -197,6 +236,7 @@ function Game(difficulty) {
 	    player.render(player.getAngle() * 180 / Math.PI);
 
 	    //player.ball.render();
+	    player.checkMirrorCollision();
 
 	    for (var i = mirrors.length - 1; i >= 0; i--) {
 	    	if (mirrors[i].path.length <= 90) mirrors[i].opacity -= 0.01;//console.log(mirrors[i] + " end of path");
@@ -206,15 +246,18 @@ function Game(difficulty) {
 	    		continue;
 	    	}
 
-	    	mirrors[i].checkPlayerCollision();
+	    	//mirrors[i].checkPlayerCollision();
 
 	    	mirrors[i].angle = mirrors[i].path.shift();
 	    	update(mirrors[i]);
 
 	    	mirrors[i].render(mirrors[i].angle * 180 / Math.PI, mirrors[i].opacity);
-	    	//mirrors[i].ball.render();
+	    	//mirrors[i].ball.render(); //drawCircle(ctx_border, mirrors[i].ball)
 	    };	  
-	    //player.checkMirrorCollision();
+	    
+	    for (var i = points.length - 1; i >= 0; i--) {
+	    	if (points[i].ball.radius >= 2) points[i].render();
+	    };
 	    
 	    if (!game_ended) {
 	    	requestAnimationFrame(render); //call itself again
@@ -240,6 +283,7 @@ function Game(difficulty) {
 	function endGame() {
 		game_ended = true;
 		//write score etc
+		clearInterval(mirror_interval);
 	}
 
 	function setDifficulty(obj, difficulty) {

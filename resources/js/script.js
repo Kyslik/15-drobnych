@@ -124,12 +124,18 @@ $( document ).ready(function() {
 
 });
 
-if (actual_screen == "menu" || actual_screen == "repeat") {
-	$(window).keypress(function(e) {
-	  if (e.keyCode == 32) {
-	  	e.preventDefault();
-	  	console.log("spacebar");
-	    $('button.spacebar-btn').addClass('active').click();
-	  }
-	});
-}
+/*if (actual_screen == "menu" || actual_screen == "repeat") {*/
+$(window).keypress(function(e) {
+  if (e.keyCode == 32) {
+  	e.preventDefault();
+  	if (actual_screen == "menu" || actual_screen == "repeat") {
+  		$('button.spacebar-btn').addClass('active').click();
+  	}
+
+  	if (actual_screen == "game") {
+  		game.restart();
+  	}
+    
+  }
+});
+/*}*/

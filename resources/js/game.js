@@ -45,8 +45,8 @@ function Game(difficulty) {
 
 	Game.prototype.play = function() {
 		render();
-		mirror_interval = setInterval(addMirror, 1000);
-		point_interval = setInterval(addPoint, 4000);
+		mirror_interval = setInterval(addMirror, 1000/difficulty);
+		point_interval = setInterval(addPoint, 4000/difficulty);
 	};
 
 	Game.prototype.getDifficulty = function() {
@@ -132,7 +132,7 @@ function Game(difficulty) {
 
 	Point.prototype.render = function() {
 		if (this.picked_up) {
-			this.ball.update(this.ball.x - 10, this.ball.y - 10, this.ball.radius - 0.2);
+			this.ball.update(this.ball.x - 10, this.ball.y - 10, this.ball.radius - 0.4);
 			//alert(1);
 		}
 

@@ -22,7 +22,6 @@ function Game(difficulty) {
 	var board_height 	= canvas_board.height;
 
 	var mirrors 		= [];
-	var path_cords		= [];
 
 	this.difficulty 	= difficulty;
 
@@ -35,7 +34,7 @@ function Game(difficulty) {
     document.addEventListener('keyup', checkKeyUp, false);
 
 	function Player (x, y, radius, difficulty) {
-		console.log(difficulty);
+		console.log("Difficulty: " + difficulty);
 		if (difficulty == 1) {
 	    	this.thrust = 1;
 	    	this.turn_speed = 0.0005;
@@ -58,14 +57,16 @@ function Game(difficulty) {
 
 		this.score 			= 0;
 		
+		this.path_cords		= [];
+
 		this.player_img 	= new Image();
 		this.player_img.src = "./resources/images/arrow-black-left.png";
 		
-		this.x 				= x || 0;
-	    this.y 				= y || 0;
-	    this.radius 		= radius || 10;
+		this.x 				= x;
+	    this.y 				= y;
+	    this.radius 		= radius;
 
-	    this.is_thrusting 	= false;
+	    this.is_thrusting 	= true;
 	    this.angle 			= 0;
 	   
 	    this.is_right_key 	= false;
@@ -80,7 +81,7 @@ function Game(difficulty) {
 	    
 	    var radians = this.angle/Math.PI*180;
 	    
-	    if(this.is_thrusting) {
+	    if ( this.is_thrusting ) {
 
 	      this.velX = Math.cos(radians) * this.thrust;
 	      this.velY = Math.sin(radians) * this.thrust;
@@ -88,25 +89,25 @@ function Game(difficulty) {
 	    }
 	    
 	    // bounds check    
-	    if(this.x < this.radius) {
+	    if (this.x < this.radius) {
 	        this.x = board_width;   
 	    }
 
-	    if(this.x > board_width) {
+	    if (this.x > board_width) {
 	        this.x = this.radius;   
 	    }
 
-	    if(this.y < this.radius) {
+	    if (this.y < this.radius) {
 	        this.y = board_height;   
 	    }
 
-	    if(this.y > board_height) {
+	    if (this.y > board_height) {
 	        this.y = this.radius;   
 	    }
 	    
 	    // apply friction
-	    this.velX *= 1.00;
-	    this.velY *= 1.0;
+	    this.velX *= 1;
+	    this.velY *= 1;
 	    
 	    // apply velocities    
 	    this.x -= this.velX;
@@ -119,25 +120,35 @@ function Game(difficulty) {
 
 	Player.prototype.render = function (angle) {
 	    
-	    drawImg(this.player_img, this.x, this.y, 0, 6, 9, 12, angle);
+	    drawPlayerImg(this.player_img, this.x, this.y, 0, 6, 9, 12, angle);
 	   
 	};
 
-	function drawImg(img, pX, pY, oX, oY, w, h, rot) {
+	function drawPlayerImg(img, pX, pY, oX, oY, w, h, rot) {
 		ctx_player.save();
 		ctx_player.translate(pX+oX, pY+oY);
-		ctx_player.rotate(rot); //  * Math.PI / 180
+		ctx_player.rotate(rot);
 		ctx_player.drawImage(img, 0, 0, w, h, -(oX), -(oY), w, h);
 		ctx_player.restore();
 	}
 
 	var player = new Player(board_width/2, board_height/2, 0, difficulty);
 
+	function clearCtxPlayer() {
+    	ctx_player.clearRect(0, 0, board_width, board_height);
+	}
+
+	Player.prototype.updateScore = function(points) {
+    	this.score += points;
+	};
+
+	Player.prototype.getPath = function() {
+		return this.path_cords;
+	};
+
 	function render() {
 	    // check keys
 	    // up arrow or space
-	    player.is_thrusting = true;
-
 	    if (player.is_right_key) {
 	        // right arrow
 	        player.is_left_key = false;
@@ -151,41 +162,33 @@ function Game(difficulty) {
 	    }
 	   
 	    clearCtxPlayer();
+	    
+	    player.path_cords.push(player.angle); //save players path
+
 	    player.update();
 	    player.render(player.getAngle() * 180 / Math.PI);
+	    
 	    requestAnimationFrame(render);
 	}
 
-	function clearCtxPlayer() {
-    	ctx_player.clearRect(0, 0, board_width, board_height);
+	function clearCtxMirrors() {
+    	ctx_mirrors.clearRect(0, 0, board_width, board_height);
 	}
-
-	Player.prototype.updateScore = function(points) {
-    	this.score += points;
-	};
 
 	Game.prototype.play = function() {
 		render();
 	};
 
 	Game.prototype.getDifficulty = function() {
-		console.log(this.difficulty);
+		return this.difficulty;
 	};
 
 	function checkKeyDown(e) {
 
 	    var keyID = e.keyCode || e.which;
 
-	    if (keyID === 38 || keyID === 87) { //up arrow or W key
-	        e.preventDefault();
-	    }
-
 	    if (keyID === 39 || keyID === 68) { //right arrow or D key
 	        player.is_right_key = true;
-	        e.preventDefault();
-	    }
-
-	    if (keyID === 40 || keyID === 83) { //down arrow or S key
 	        e.preventDefault();
 	    }
 

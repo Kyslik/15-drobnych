@@ -82,14 +82,14 @@ function displayGame() {
 
 	game = new Game(findDifficulty());
 	game.play();
-	//game.getDifficulty();
-
+	
 }
 
 function hideGame() {
 	$('#game-board').css("display", "none");
 	$('#game-player').css("display", "none");
 	$('#game-mirrors').css("display", "none");
+	game = null;
 }
 
 function changeScreen(display) {

@@ -12,14 +12,15 @@ function Game(difficulty) {
 	var ctx_player 		= 	canvas_player.getContext('2d');
 	var ctx_mirrors 	= 	canvas_mirrors.getContext('2d');
 
-	var frame_rate 		=   window.requestAnimationFrame ||
+	var game_ended		= 	false;
+	/*var frame_rate 		=   window.requestAnimationFrame ||
 							window.webkitRequestAnimationFrame ||
 							window.mozRequestAnimationFrame ||
 							window.oRequestAnimationFrame ||
 							window.msRequestAnimationFrame ||
 							function(callback) {
 								window.setTimeout(callback, 1000 / 60);
-							};
+							};*/
 
 	var board_width 	= canvas_board.width;
 	var board_height 	= canvas_board.height;
@@ -28,8 +29,10 @@ function Game(difficulty) {
 
 	this.difficulty 	= difficulty;
 
-	var player = new Player(board_width/2, board_height/2, 0, this.difficulty);
+	var player 			= new Player(board_width/2, board_height/2, 0, this.difficulty);
 
+	setDifficulty(player, this.difficulty);
+	
 	function init() {
 
 
@@ -37,7 +40,7 @@ function Game(difficulty) {
 
 	Game.prototype.play = function() {
 		render();
-		setInterval(addMirror, 3000);
+		setInterval(addMirror, 1000);
 /*		window.setTimeout(addMirror, 3000);
 		window.setTimeout(addMirror, 10000)*/
 	};
@@ -48,28 +51,8 @@ function Game(difficulty) {
 
 	
 
-	function Player (x, y, radius, difficulty) {
-		console.log("Difficulty: " + difficulty);
-		if (difficulty == 1) {
-	    	this.thrust = 1;
-	    	this.turn_speed = 0.0005;
-	    }
-
-	    if (difficulty == 2) {
-	    	this.thrust = 2;
-	    	this.turn_speed = 0.001;
-	    }
-	    
-	    if (difficulty == 3) {
-	    	this.thrust = 3;
-	    	this.turn_speed = 0.002;
-	    }
-
-	    if (difficulty == 4) {
-	    	this.thrust = 4;
-	    	this.turn_speed = 0.003;
-	    }
-
+	function Player (x, y, radius) {
+		this.ball 			= new Ball(0, 0, 9); //for collision
 	    this.oX				= x;
 	    this.oY 			= y;
 	    this.oRadius 		= radius;
@@ -79,7 +62,7 @@ function Game(difficulty) {
 		this.path_cords		= [];
 
 		this.player_img 	= new Image();
-		this.player_img.src = "./resources/images/arrow-black-left.png";
+		this.player_img.src = "./resources/images/arrow-white-left.png";
 		
 		this.x 				= x;
 	    this.y 				= y;
@@ -101,41 +84,33 @@ function Game(difficulty) {
 	}
 
 	Player.prototype.render = function (angle) {
-	    drawImg(ctx_player, this.player_img, this.x, this.y, 0, 6, 9, 12, angle, 1);
+	    drawImg(ctx_player, this.player_img, this.x, this.y, 10, 10, 20, 20, angle, 1);
+	    this.ball.update(this.x, this.y);
 	};
 
 	Player.prototype.updateScore = function(points) {
     	this.score += points;
+    	
 	};
 
 	Player.prototype.getPath = function() {
 		return this.path_cords;
 	};
 
-	function Mirror (x, y, radius, path, difficulty) {
+	Player.prototype.checkMirrorCollision = function() {
 
-		if (difficulty == 1) {
-	    	this.thrust = 1;
-	    	this.turn_speed = 0.0005;
+	    for (var i = 0; i < mirrors.length; i++) {
+	        if (distance(mirrors[i].ball, player.ball)) {
+				console.log("Bum");
+				endGame();
+			}
 	    }
+	};
 
-	    if (difficulty == 2) {
-	    	this.thrust = 2;
-	    	this.turn_speed = 0.001;
-	    }
-	    
-	    if (difficulty == 3) {
-	    	this.thrust = 3;
-	    	this.turn_speed = 0.002;
-	    }
-
-	    if (difficulty == 4) {
-	    	this.thrust = 4;
-	    	this.turn_speed = 0.003;
-	    }
-
+	function Mirror (x, y, radius, path) {
+		this.ball 			= new Ball(0, 0, 6); //for collision
 		this.mirror_img 	= new Image();
-		this.mirror_img.src = "./resources/images/arrow-white-left.png";
+		this.mirror_img.src = "./resources/images/arrow-black-left.png";
 		
 		this.x 				= x;
 	    this.y 				= y;
@@ -146,6 +121,8 @@ function Game(difficulty) {
 
 	    this.is_thrusting 	= true;
 	    this.angle 			= 0;
+
+	    this.destroyed 		= false;
 	}
 
 	Mirror.prototype.turn = function(dir) {
@@ -153,16 +130,51 @@ function Game(difficulty) {
 	};
 
 	Mirror.prototype.render = function (angle, opacity) {
-	    drawImg(ctx_mirrors, this.mirror_img, this.x, this.y, 0, 6, 9, 12, angle, opacity);
+	    drawImg(ctx_mirrors, this.mirror_img, this.x, this.y, 10, 10, 20, 20, angle, opacity);
+	    this.ball.update(this.x, this.y);
+	};
+
+	Mirror.prototype.checkPlayerCollision = function() {
+		if (distance(this.ball, player.ball)) {
+			console.log("Bum");
+			endGame();
+		}
+	};
+
+	function Ball (x, y, radius, color) {
+	    this.x = x +10;
+	    this.y = y +10;
+	    this.radius = radius;
+	    this.color = color || "rgb(255,0,0)";
+
+	    /*this.x -= this.radius / 2;
+	    this.y -= this.radius / 2;*/
+	}
+
+	Ball.prototype.update = function (x, y) {
+	    this.x = x + 10;
+	    this.y = y + 10;
+	    /*this.x -= this.radius / 2;
+	    this.y -= this.radius / 2;*/
+	};
+
+	Ball.prototype.render = function () {
+	    ctx_board.fillStyle = this.color;
+	    ctx_board.beginPath();
+	    ctx_board.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+	    ctx_board.closePath();
+	    ctx_board.fill();
 	};
 
 	function addMirror() {
 		//console.log(player.path_cords.length);
-		mirrors.push(new Mirror(player.oX, player.oY, player.oRadius, player.path_cords, difficulty));
-		//console.log(mirrors[mirrors.length -1]);
+		mirrors.push(new Mirror(player.oX, player.oY, player.oRadius, player.path_cords));
+		setDifficulty(mirrors[mirrors.length - 1], difficulty);
 	}
 
+
 	function render() {
+
 	    if (player.is_right_key) {
 	        // right arrow
 	        player.is_left_key = false;
@@ -177,27 +189,39 @@ function Game(difficulty) {
 	   
 	    clearCtx(ctx_player);
 	    clearCtx(ctx_mirrors);
+	    clearCtx(ctx_board);
 
 	    player.path_cords.push(player.angle); //save players path
+
 	    update(player);
+	    player.render(player.getAngle() * 180 / Math.PI);
+
+	    //player.ball.render();
 
 	    for (var i = mirrors.length - 1; i >= 0; i--) {
-
 	    	if (mirrors[i].path.length <= 90) mirrors[i].opacity -= 0.01;//console.log(mirrors[i] + " end of path");
+	    	//if (mirrors[i].path.length <= 20) mirrors[i].destroyed = true;
 	    	if (mirrors[i].path.length == 0) {
 	    		mirrors.shift();
 	    		continue;
 	    	}
 
+	    	mirrors[i].checkPlayerCollision();
+
 	    	mirrors[i].angle = mirrors[i].path.shift();
 	    	update(mirrors[i]);
+
 	    	mirrors[i].render(mirrors[i].angle * 180 / Math.PI, mirrors[i].opacity);
-	    	//mirrors[i].path.pop();
-	    };
+	    	//mirrors[i].ball.render();
+	    };	  
+	    //player.checkMirrorCollision();
+	    
+	    if (!game_ended) {
+	    	requestAnimationFrame(render); //call itself again
+	    } else {
+	    	changeScreen("menu");
+	    }
 
-	    player.render(player.getAngle() * 180 / Math.PI);
-
-	    requestAnimationFrame(render); //call itself again
 	}
 
 	function drawImg(canvas, img, pX, pY, oX, oY, w, h, rot, opacity) {
@@ -211,6 +235,18 @@ function Game(difficulty) {
 
 	function clearCtx(canvas) {
     	canvas.clearRect(0, 0, board_width, board_height);
+	}
+
+	function endGame() {
+		game_ended = true;
+		//write score etc
+	}
+
+	function setDifficulty(obj, difficulty) {
+		
+    	obj.thrust = 1.5*difficulty;
+    	obj.turn_speed = 0.0005*difficulty;
+	    
 	}
 
 	function update( obj ) {
@@ -248,6 +284,19 @@ function Game(difficulty) {
 	    // apply velocities    
 	    obj.x -= obj.velX;
 	    obj.y -= obj.velY;
+	}
+
+	function distance(ent1, ent2) { //for balls
+	    var x = ent2.x - ent1.x,
+	        y = ent2.y - ent1.y,
+	        dist = Math.sqrt(x*x + y*y),
+	        collision = false;
+	    
+	    // check the distance against the sum of both objects radius. If its less its a hit
+	    if(dist < ent1.radius + ent2.radius){
+	       collision = true;
+	    }
+	    return collision;
 	}
 
 	function checkKeyDown(e) {

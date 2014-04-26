@@ -9,7 +9,7 @@ var pulse_on = true;
 var actual_screen = "menu";
 
 function pulse() {
-	if (!pulse_on) return;
+	//if (!pulse_on) return;
     $('button.heartbeat').animate({
         width: 200, height: 200, 
         'font-size': 50,
@@ -22,22 +22,21 @@ function pulse() {
             top: 40,
             opacity: 1
         }, 700, function() {
-            pulse();
+            if (pulse_on) pulse();
         });
     }); 
 };
 
 function displayGameMenu() {
-
-	pulse_on = true;
-	pulse();
-
 	actual_screen = "menu";
 
 	$('#game-menu').css("display", "block");
-	
+
 	hideGame();
 	hideGameRepeat();
+
+	pulse_on = true;
+	pulse();
 }
 
 function hideGameMenu() {
@@ -49,22 +48,21 @@ function hideGameMenu() {
 
 function displayGameRepeat() {
 
-	pulse_on = true;
-	pulse();
-
 	actual_screen = "repeat";
 
 	$('#game-menu-repeat').css("display", "block");
 
 	hideGame();
 	hideGameMenu();
+
+	pulse_on = true;
+	pulse();
 	
 }
 
 function hideGameRepeat() {
 
 	pulse_on = false;
-
 	$('#game-menu-repeat').css("display", "none");
 	$('button.spacebar-btn').removeClass('active'); //deactivates spacebar "pressed" effect.
 }
@@ -86,10 +84,12 @@ function displayGame() {
 }
 
 function hideGame() {
+
 	$('#game-board').css("display", "none");
 	$('#game-player').css("display", "none");
 	$('#game-mirrors').css("display", "none");
-	game = null;
+
+	//game = null;
 }
 
 function changeScreen(display) {

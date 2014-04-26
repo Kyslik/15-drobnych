@@ -25,6 +25,8 @@ function Game(difficulty) {
 
 	this.difficulty 	= difficulty;
 
+	var player = new Player(board_width/2, board_height/2, 0, difficulty);
+
 	function init() {
 
 
@@ -77,7 +79,7 @@ function Game(difficulty) {
 	    this.angle += this.turn_speed * dir;
 	};
 
-	Player.prototype.update = function () {
+/*	Player.prototype.update = function () {
 	    
 	    var radians = this.angle/Math.PI*180;
 	    
@@ -112,7 +114,7 @@ function Game(difficulty) {
 	    // apply velocities    
 	    this.x -= this.velX;
 	    this.y -= this.velY;
-	};
+	};*/
 
 	Player.prototype.getAngle = function () {
 		return this.angle;
@@ -131,8 +133,6 @@ function Game(difficulty) {
 		ctx_player.drawImage(img, 0, 0, w, h, -(oX), -(oY), w, h);
 		ctx_player.restore();
 	}
-
-	var player = new Player(board_width/2, board_height/2, 0, difficulty);
 
 	function clearCtxPlayer() {
     	ctx_player.clearRect(0, 0, board_width, board_height);
@@ -165,9 +165,9 @@ function Game(difficulty) {
 	    
 	    player.path_cords.push(player.angle); //save players path
 
-	    player.update();
+	    update(player);
 	    player.render(player.getAngle() * 180 / Math.PI);
-	    
+
 	    requestAnimationFrame(render);
 	}
 
@@ -182,6 +182,43 @@ function Game(difficulty) {
 	Game.prototype.getDifficulty = function() {
 		return this.difficulty;
 	};
+
+	function update( obj ) {
+
+		var radians = obj.angle/Math.PI*180;
+	    
+	    if ( obj.is_thrusting ) {
+
+	      obj.velX = Math.cos(radians) * obj.thrust;
+	      obj.velY = Math.sin(radians) * obj.thrust;
+	    
+	    }
+	    
+	    // bounds check    
+	    if (obj.x < obj.radius) {
+	        obj.x = board_width;   
+	    }
+
+	    if (obj.x > board_width) {
+	        obj.x = obj.radius;   
+	    }
+
+	    if (obj.y < obj.radius) {
+	        obj.y = board_height;   
+	    }
+
+	    if (obj.y > board_height) {
+	        obj.y = obj.radius;   
+	    }
+	    
+	    // apply friction
+	    obj.velX *= 1;
+	    obj.velY *= 1;
+	    
+	    // apply velocities    
+	    obj.x -= obj.velX;
+	    obj.y -= obj.velY;
+	}
 
 	function checkKeyDown(e) {
 

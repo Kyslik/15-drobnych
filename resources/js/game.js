@@ -1,6 +1,9 @@
 function Game(difficulty) {
 	console.log("Game loaded");
 
+	document.addEventListener('keydown', checkKeyDown, false);
+    document.addEventListener('keyup', checkKeyUp, false);
+
 	var canvas_board 	= 	document.getElementById('game-board');
 	var canvas_player 	= 	document.getElementById('game-player');
 	var canvas_mirrors 	= 	document.getElementById('game-mirrors');
@@ -25,15 +28,22 @@ function Game(difficulty) {
 
 	this.difficulty 	= difficulty;
 
-	var player = new Player(board_width/2, board_height/2, 0, difficulty);
+	var player = new Player(board_width/2, board_height/2, 0, this.difficulty);
 
 	function init() {
 
 
 	}
 
-	document.addEventListener('keydown', checkKeyDown, false);
-    document.addEventListener('keyup', checkKeyUp, false);
+	Game.prototype.play = function() {
+		render();
+	};
+
+	Game.prototype.getDifficulty = function() {
+		return this.difficulty;
+	};
+
+	
 
 	function Player (x, y, radius, difficulty) {
 		console.log("Difficulty: " + difficulty);
@@ -79,64 +89,13 @@ function Game(difficulty) {
 	    this.angle += this.turn_speed * dir;
 	};
 
-/*	Player.prototype.update = function () {
-	    
-	    var radians = this.angle/Math.PI*180;
-	    
-	    if ( this.is_thrusting ) {
-
-	      this.velX = Math.cos(radians) * this.thrust;
-	      this.velY = Math.sin(radians) * this.thrust;
-	    
-	    }
-	    
-	    // bounds check    
-	    if (this.x < this.radius) {
-	        this.x = board_width;   
-	    }
-
-	    if (this.x > board_width) {
-	        this.x = this.radius;   
-	    }
-
-	    if (this.y < this.radius) {
-	        this.y = board_height;   
-	    }
-
-	    if (this.y > board_height) {
-	        this.y = this.radius;   
-	    }
-	    
-	    // apply friction
-	    this.velX *= 1;
-	    this.velY *= 1;
-	    
-	    // apply velocities    
-	    this.x -= this.velX;
-	    this.y -= this.velY;
-	};*/
-
 	Player.prototype.getAngle = function () {
 		return this.angle;
 	}
 
 	Player.prototype.render = function (angle) {
-	    
-	    drawPlayerImg(this.player_img, this.x, this.y, 0, 6, 9, 12, angle);
-	   
+	    drawImg(ctx_player, this.player_img, this.x, this.y, 0, 6, 9, 12, angle);
 	};
-
-	function drawPlayerImg(img, pX, pY, oX, oY, w, h, rot) {
-		ctx_player.save();
-		ctx_player.translate(pX+oX, pY+oY);
-		ctx_player.rotate(rot);
-		ctx_player.drawImage(img, 0, 0, w, h, -(oX), -(oY), w, h);
-		ctx_player.restore();
-	}
-
-	function clearCtxPlayer() {
-    	ctx_player.clearRect(0, 0, board_width, board_height);
-	}
 
 	Player.prototype.updateScore = function(points) {
     	this.score += points;
@@ -146,9 +105,8 @@ function Game(difficulty) {
 		return this.path_cords;
 	};
 
+
 	function render() {
-	    // check keys
-	    // up arrow or space
 	    if (player.is_right_key) {
 	        // right arrow
 	        player.is_left_key = false;
@@ -161,27 +119,27 @@ function Game(difficulty) {
 	       player.turn(-1);
 	    }
 	   
-	    clearCtxPlayer();
+	    clearCtx(ctx_player);
 	    
 	    player.path_cords.push(player.angle); //save players path
-
 	    update(player);
+
 	    player.render(player.getAngle() * 180 / Math.PI);
 
-	    requestAnimationFrame(render);
+	    requestAnimationFrame(render); //call itself again
 	}
 
-	function clearCtxMirrors() {
-    	ctx_mirrors.clearRect(0, 0, board_width, board_height);
+	function drawImg(canvas, img, pX, pY, oX, oY, w, h, rot) {
+		canvas.save();
+		canvas.translate(pX+oX, pY+oY);
+		canvas.rotate(rot);
+		canvas.drawImage(img, 0, 0, w, h, -(oX), -(oY), w, h);
+		canvas.restore();
 	}
 
-	Game.prototype.play = function() {
-		render();
-	};
-
-	Game.prototype.getDifficulty = function() {
-		return this.difficulty;
-	};
+	function clearCtx(canvas) {
+    	canvas.clearRect(0, 0, board_width, board_height);
+	}
 
 	function update( obj ) {
 

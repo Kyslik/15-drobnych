@@ -222,6 +222,9 @@ function Game(difficulty) {
 		this.ball 			= new Ball(0, 0, 6); //for collision
 		this.mirror_img 	= new Image();
 		this.mirror_img.src = "./resources/images/arrow-black-left.png";
+
+		this.mirror_empty_img 	= new Image();
+		this.mirror_empty_img.src = "./resources/images/arrow-black-empty-left.png";
 		
 		this.x 				= x;
 	    this.y 				= y;
@@ -241,7 +244,13 @@ function Game(difficulty) {
 	};
 
 	Mirror.prototype.render = function (angle, opacity) {
-	    drawImg(ctx_mirrors, this.mirror_img, this.x, this.y, 10, 10, 20, 20, angle, opacity);
+		if (square.picked_up) {
+			var imag = this.mirror_empty_img;
+		} else {
+			var imag = this.mirror_img;
+		}
+
+	    drawImg(ctx_mirrors, imag, this.x, this.y, 10, 10, 20, 20, angle, opacity);
 	    this.ball.update(this.x, this.y);
 	};
 

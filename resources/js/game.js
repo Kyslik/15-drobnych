@@ -37,6 +37,7 @@ function Game(difficulty) {
 
 	Game.prototype.play = function() {
 		render();
+		setInterval(addMirror, 3000);
 	};
 
 	Game.prototype.getDifficulty = function() {
@@ -67,6 +68,10 @@ function Game(difficulty) {
 	    	this.turn_speed = 0.003;
 	    }
 
+	    this.oX				= x;
+	    this.oY 			= y;
+	    this.oRadius 		= radius;
+
 		this.score 			= 0;
 		
 		this.path_cords		= [];
@@ -94,7 +99,7 @@ function Game(difficulty) {
 	}
 
 	Player.prototype.render = function (angle) {
-	    drawImg(ctx_player, this.player_img, this.x, this.y, 0, 6, 9, 12, angle);
+	    drawImg(ctx_player, this.player_img, this.x, this.y, 0, 6, 9, 12, angle, 1);
 	};
 
 	Player.prototype.updateScore = function(points) {
@@ -105,6 +110,54 @@ function Game(difficulty) {
 		return this.path_cords;
 	};
 
+	function Mirror (x, y, radius, path, difficulty) {
+
+		if (difficulty == 1) {
+	    	this.thrust = 1;
+	    	this.turn_speed = 0.0005;
+	    }
+
+	    if (difficulty == 2) {
+	    	this.thrust = 2;
+	    	this.turn_speed = 0.001;
+	    }
+	    
+	    if (difficulty == 3) {
+	    	this.thrust = 3;
+	    	this.turn_speed = 0.002;
+	    }
+
+	    if (difficulty == 4) {
+	    	this.thrust = 4;
+	    	this.turn_speed = 0.003;
+	    }
+
+		this.mirror_img 	= new Image();
+		this.mirror_img.src = "./resources/images/arrow-white-left.png";
+		
+		this.x 				= x;
+	    this.y 				= y;
+	    this.radius 		= radius;
+	    this.path 			= path.slice(0);
+
+	    this.opacity 		= 1;
+
+	    this.is_thrusting 	= true;
+	    this.angle 			= 0;
+	}
+
+	Mirror.prototype.turn = function(dir) {
+	    this.angle += this.turn_speed * dir;
+	};
+
+	Mirror.prototype.render = function (angle, opacity) {
+	    drawImg(ctx_mirrors, this.mirror_img, this.x, this.y, 0, 6, 9, 12, angle, opacity);
+	};
+
+	function addMirror() {
+		console.log(player.path_cords.length);
+		mirrors.push(new Mirror(player.oX, player.oY, player.oRadius, player.path_cords, difficulty));
+	}
 
 	function render() {
 	    if (player.is_right_key) {
@@ -120,19 +173,34 @@ function Game(difficulty) {
 	    }
 	   
 	    clearCtx(ctx_player);
-	    
+	    clearCtx(ctx_mirrors);
+
 	    player.path_cords.push(player.angle); //save players path
 	    update(player);
+
+	    for (var i = mirrors.length - 1; i >= 0; i--) {
+	    	if (mirrors[i].path.length <= 90) mirrors[i].opacity -= 0.01;//console.log(mirrors[i] + " end of path");
+	    	if (mirrors[i].path.length == 0) {
+	    		mirrors.shift();
+	    		continue;
+	    	}
+
+	    	mirrors[i].angle = mirrors[i].path[mirrors[i].path.length - 1];
+	    	update(mirrors[i]);
+	    	mirrors[i].render(mirrors[i].angle, mirrors[i].opacity);
+	    	mirrors[i].path.pop();
+	    };
 
 	    player.render(player.getAngle() * 180 / Math.PI);
 
 	    requestAnimationFrame(render); //call itself again
 	}
 
-	function drawImg(canvas, img, pX, pY, oX, oY, w, h, rot) {
+	function drawImg(canvas, img, pX, pY, oX, oY, w, h, rot, opacity) {
 		canvas.save();
 		canvas.translate(pX+oX, pY+oY);
 		canvas.rotate(rot);
+		canvas.globalAlpha = opacity;
 		canvas.drawImage(img, 0, 0, w, h, -(oX), -(oY), w, h);
 		canvas.restore();
 	}

@@ -49,7 +49,7 @@ function Game(difficulty) {
 
 	Game.prototype.play = function() {
 		render();
-		//mirror_interval = setInterval(addMirror, 1000/difficulty);
+		mirror_interval = setInterval(addMirror, 1000/difficulty);
 		point_interval = setInterval(addPoint, 4000/difficulty);
 		
 	};
@@ -122,10 +122,20 @@ function Game(difficulty) {
 		};
 	    for (var i = 0; i < mirrors.length; i++) {
 	        if (distance(mirrors[i].ball, player.ball)) {
-				console.log("Bum");
-				endGame();
+	        	if (square.picked_up) {
+	        		mirrors[i].destroyed = true;
+	        	} else {
+	        		if (!mirrors[i].destroyed) {
+	        			console.log("Bum");
+						endGame();	
+	        		}
+	
+	        	}
+				
 			}
+	
 	    }
+	
 	};
 
 	function Point (x, y) {
@@ -264,7 +274,7 @@ function Game(difficulty) {
 
 	function addMirror() {
 		//console.log(player.path_cords.length);
-		if (game_ended) return false;
+		if (game_ended || square.picked_up) return false;
 		mirrors.push(new Mirror(player.oX, player.oY, player.oRadius, player.path_cords));
 		setDifficulty(mirrors[mirrors.length - 1], difficulty);
 	}
@@ -311,17 +321,21 @@ function Game(difficulty) {
 	    square.render();
 
 	    for (var i = mirrors.length - 1; i >= 0; i--) {
-	    	if (mirrors[i].path.length <= 90) mirrors[i].opacity -= 0.01; //console.log(mirrors[i] + " end of path");
+	    	if (mirrors[i].path.length <= 90 && !square.picked_up) mirrors[i].opacity -= 0.01; //console.log(mirrors[i] + " end of path");
 	    	//if (mirrors[i].path.length <= 20) mirrors[i].destroyed = true;
 	    	if (mirrors[i].path.length == 0) {
 	    		mirrors.shift();
 	    		continue;
 	    	}
-	    	//mirrors[i].checkPlayerCollision();
+	    	
 
-	    	mirrors[i].angle = mirrors[i].path.shift();
-	    	update(mirrors[i]);
-
+	    	if (!square.picked_up) {
+	    		//if square is not picked up do updates
+	    		mirrors[i].angle = mirrors[i].path.shift();
+	    		update(mirrors[i]);	
+	    	}
+	    	
+	    	if (!mirrors[i].destroyed)
 	    	mirrors[i].render(mirrors[i].angle * 180 / Math.PI, mirrors[i].opacity);
 	    	//mirrors[i].ball.render(); //drawCircle(ctx_border, mirrors[i].ball)
 	    };	  

@@ -1,7 +1,17 @@
  $(function(){
+
+ 	if (localStorage.getItem('difficulty')) {
+ 		var difficulty = localStorage.getItem('difficulty');
+ 		$('ul#difficulty li').removeClass('active');
+ 		$('ul#difficulty li[data-id*="'+ difficulty +'"]').addClass('active');
+
+	}
+
 	$('ul#difficulty li').click(function() {
 		$('li.active').removeClass('active');
 		$(this).addClass('active');
+		localStorage.setItem('difficulty', findDifficulty());
+		if (actual_screen == "repeat") changeScreen("menu");
 	});
 });
 
@@ -33,10 +43,13 @@ function displayGameMenu(display) {
 
 	if (display == "menu") {
 		$('.round-btn.heartbeat').html("GO 15!");
+		$('#repeat-score').css("display", "none");
 	}
 
 	if (display == "repeat") {
 		$('.round-btn.heartbeat').html("Try Again!");
+		$('#repeat-score').css("display", "block");
+		displayScore();
 	}
 	
 
@@ -100,6 +113,17 @@ function changeScreen(display) {
 
 function findDifficulty() {
 	return $('li.active').data('id');
+}
+
+function displayScore() {
+	///object {difficulty: 1, time: 26.246, player_points: 2} 
+	score = game.getScore();
+	$('#repeat-score p.current').html(score.player_points+ " points in " + precise_round(score.time_e, 2) + " seconds");
+	$('#repeat-score p.best').html("");
+}
+
+function precise_round(num, decimals) {
+    return Math.round(num * Math.pow(10, decimals)) / Math.pow(10, decimals);
 }
 
 $( document ).ready(function() {

@@ -34,6 +34,9 @@ function Game(difficulty) {
 	var point_interval 	= null;
 	var max_points		= 2;
 
+	var timer_start 	= 0;
+	var timer_end		= 0;
+	var time_score		= 0;
 
 	var square 			= new Square(Math.floor((Math.random()*board_width/2)+1), Math.floor((Math.random()*board_height/2)+1)); //randomly place square
 	this.difficulty 	= difficulty;
@@ -42,20 +45,22 @@ function Game(difficulty) {
 
 	setDifficulty(player, this.difficulty);
 	
-	function init() {
-
-
-	}
 
 	Game.prototype.play = function() {
 		render();
 		mirror_interval = setInterval(addMirror, 1000/difficulty);
 		point_interval = setInterval(addPoint, 4000/difficulty);
-		
+		timer_start = (new Date).getTime();
 	};
 
 	Game.prototype.getDifficulty = function() {
 		return this.difficulty;
+	};
+
+	Game.prototype.getScore = function() {
+		timer_end = (new Date).getTime(); 
+		time_score = (timer_end - timer_start)/1000;
+		return {difficulty: difficulty, time_e: time_score, player_points: player.score};
 	};
 
 	Game.prototype.restart = function() {
@@ -375,9 +380,10 @@ function Game(difficulty) {
 	}
 
 	function endGame() {
+		timer_end = (new Date).getTime(); 
 		game_ended = true;
 		//write score etc
-
+		time_score = (timer_end - timer_start)/1000;
 		clearInterval(mirror_interval);
 		clearInterval(point_interval);
 	}

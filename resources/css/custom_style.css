@@ -98,7 +98,7 @@ div#game-menu ul#difficulty > li {
   color: #559CFA;
   float: left;
   font-size: 18px;
-  text-transform: uppercase;
+  /*text-transform: uppercase;*/
 }
 
 div#game-menu ul#difficulty > li:hover {
@@ -136,13 +136,20 @@ div#game-menu div.hint {
   width: 100%;
   text-align: center;
   position: absolute;
-  bottom: 100px;
+  bottom: 50px;
 }
 
 div#game-menu div.hint p {
   color: white;
   margin: 10px auto;
   font-size: 18px;
+  font-weight: bold;
+}
+
+div#game-menu div.hint p small {
+  color: white;
+  margin: 2px auto;
+  font-size: 16px;
   font-weight: bold;
 }
 
@@ -164,7 +171,7 @@ div#game-menu div.hint button {
   transition-duration: 0.2s;
   outline: none;
   cursor: pointer;
-  text-transform: uppercase;
+/*  text-transform: uppercase;*/
   color: #CBDDF5;
 }
 
@@ -186,7 +193,37 @@ div#game-menu div.hint button:active, div#game-menu div.hint button.active {
   border: solid 1px #203E5F;
 }
 
+div#repeat-score {
+  width: 220px;
+  height: 45px;
+  display: block;
+  position: absolute;
+  bottom: 160px;
+  left: 0px;
+  background: white;
+  padding: 5px;
+  -webkit-border-top-right-radius: 20px;
+  -webkit-border-bottom-right-radius: 20px;
+  -moz-border-radius-topright: 20px;
+  -moz-border-radius-bottomright: 20px;
+  border-top-right-radius: 20px;
+  border-bottom-right-radius: 20px;
+  display: none;
+}
 
+div#repeat-score p {
+  margin: 5px auto;
+  color: #4AB3E7;
+}
+
+div#repeat-score p.best {
+  font-size: 14px;
+}
+
+div#repeat-score p.current {
+  font-size: 17px;
+
+}
 
 div#game-menu-change {
   opacity: 0;

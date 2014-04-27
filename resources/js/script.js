@@ -48,10 +48,7 @@ function displayGameMenu(display) {
 
 	if (display == "repeat") {
 		$('.round-btn.heartbeat').html("Try Again!");
-		$('#repeat-score').css("display", "block");
-		saveScore();
 		displayScore();
-
 	}
 	
 
@@ -120,14 +117,33 @@ function findDifficulty() {
 function displayScore() {
 	///object {difficulty: 1, time: 26.246, player_points: 2} 
 	var score = game.getScore();
-	$('#repeat-score p.current').html(score.player_points+ " points in " + precise_round(score.time_e, 2) + " seconds");
-	
 	var best_score = getBestScore(score.difficulty);
+
 	if (best_score == 0) {
-		$('#repeat-score p.best').html(score.player_points + " points in " + precise_round(score.time_e, 2) + " seconds");
+
+		$('#new-best-score').css("display", "block");
+		$('#repeat-score').css("display", "none");
+		$('#new-best-score p').html(score.player_points + " points in " + precise_round(score.time_e, 2) + " seconds");
+
 	} else {
-		$('#repeat-score p.best').html(best_score.player_points + " points in " + precise_round(best_score.time_e, 2) + " seconds");
+		var new_score = compareScore(score, best_score);
+		if (JSON.stringify(new_score) == JSON.stringify(score)) {
+
+			$('#new-best-score').css("display", "block");
+			$('#repeat-score').css("display", "none");
+			$('#new-best-score p').html(score.player_points + " points in " + precise_round(score.time_e, 2) + " seconds");
+			if (score.player_points == 15) $('.round-btn.heartbeat').html("One more?");
+
+		} else {
+
+			$('#repeat-score').css("display", "block");
+			$('#new-best-score').css("display", "none");
+			$('#repeat-score p.best').html(best_score.player_points + " points in " + precise_round(best_score.time_e, 2) + " seconds");
+			$('#repeat-score p.current').html(score.player_points+ " points in " + precise_round(score.time_e, 2) + " seconds");
+			
+		}
 	}
+	saveScore();
 }
 
 function saveScore() {
@@ -140,7 +156,7 @@ function saveScore() {
 }
 
 function getBestScore(difficulty) {
-	
+
 	var score = JSON.parse(localStorage.getItem('8787_score')) || [];
 	if (score.length <= 1) return 0;
 

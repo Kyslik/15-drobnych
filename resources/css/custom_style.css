@@ -222,8 +222,40 @@ div#repeat-score p.best {
 
 div#repeat-score p.current {
   font-size: 17px;
-
 }
+
+div#new-best-score {
+  width: 220px;
+  height: 45px;
+  display: block;
+  position: absolute;
+  text-align: right;
+  bottom: 340px;
+  right: 0px;
+  background: white;
+  padding: 5px;
+  -webkit-border-top-left-radius: 20px;
+  -webkit-border-bottom-left-radius: 20px;
+  -moz-border-radius-topleft: 20px;
+  -moz-border-radius-bottomleft: 20px;
+  border-top-left-radius: 20px;
+  border-bottom-left-radius: 20px;
+  display: none;
+}
+
+div#new-best-score h2 {
+  margin: 5px auto;
+  color: #4AB3E7;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+div#new-best-score p {
+  margin: 5px auto;
+  color: #4AB3E7;
+  font-size: 17px;
+}
+
 
 div#game-menu-change {
   opacity: 0;

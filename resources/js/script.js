@@ -49,7 +49,9 @@ function displayGameMenu(display) {
 	if (display == "repeat") {
 		$('.round-btn.heartbeat').html("Try Again!");
 		$('#repeat-score').css("display", "block");
+		saveScore();
 		displayScore();
+
 	}
 	
 
@@ -117,9 +119,68 @@ function findDifficulty() {
 
 function displayScore() {
 	///object {difficulty: 1, time: 26.246, player_points: 2} 
-	score = game.getScore();
+	var score = game.getScore();
 	$('#repeat-score p.current').html(score.player_points+ " points in " + precise_round(score.time_e, 2) + " seconds");
-	$('#repeat-score p.best').html("");
+	
+	var best_score = getBestScore(score.difficulty);
+	if (best_score == 0) {
+		$('#repeat-score p.best').html(score.player_points + " points in " + precise_round(score.time_e, 2) + " seconds");
+	} else {
+		$('#repeat-score p.best').html(best_score.player_points + " points in " + precise_round(best_score.time_e, 2) + " seconds");
+	}
+}
+
+function saveScore() {
+
+	var current_score = game.getScore();
+
+	var score = JSON.parse(localStorage.getItem('8787_score')) || [];
+    score.push(current_score);
+    localStorage.setItem('8787_score', JSON.stringify(score));
+}
+
+function getBestScore(difficulty) {
+	
+	var score = JSON.parse(localStorage.getItem('8787_score')) || [];
+	if (score.length <= 1) return 0;
+
+	var working_score = [];
+
+	for (var i = score.length - 1; i >= 0; i--) {
+		if (score[i].difficulty == difficulty) working_score.push(score[i]);
+	};
+	
+	if (working_score.length == 0) return 0;
+	if (working_score.length == 1) return working_score[0];
+	if (working_score.length == 2) return compareScore(working_score[0], working_score[1]);
+
+	var returning_score = working_score[0];
+
+	if (working_score.length > 2) {
+
+		for (var i = working_score.length - 1; i >= 1; i--) {
+			returning_score = compareScore(returning_score, working_score[i]);
+		};
+
+	}
+	return returning_score;
+}
+
+function compareScore(scr1, scr2) {
+	if (scr1.difficulty > scr2.difficulty) return scr1;
+	if (scr1.difficulty < scr2.difficulty) return scr2;
+
+	if (scr1.difficulty == scr2.difficulty) {
+		if (scr1.player_points > scr2.player_points) return scr1;
+		if (scr1.player_points < scr2.player_points) return scr2;
+
+		if (scr1.player_points == scr2.player_points) {
+			if (scr1.time_e > scr2.time_e) return scr2;
+			if (scr1.time_e < scr2.time_e) return scr1;
+
+			return scr1;
+		}
+	}
 }
 
 function precise_round(num, decimals) {

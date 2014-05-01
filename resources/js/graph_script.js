@@ -44,7 +44,8 @@ $(document).ready(function() {
 	//get data from localStorage
 	if (!getData()) {
 		//show no data
-		console.log('no data');
+		$('#graph-background').css("display", "none");
+		$('#no-data').css("display", "block");
 	} else {
 		//plot plot
 		console.log(plot_data);
@@ -83,7 +84,7 @@ function plotAccordingToChoices() {
 */
 function getData() {
 	var score = JSON.parse(localStorage.getItem('8787_score')) || [];
-	if (score.length <= 1) return 0;
+	if (score.length < 1) return 0;
 		
 	var diff = [0, 0 ,0 ,0];
 	console.log(diff);

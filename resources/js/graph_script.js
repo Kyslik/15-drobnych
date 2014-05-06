@@ -26,7 +26,7 @@ var plot_options = {
 		clickable: true
 	},
 	zoom: {
-		interactive: true
+		interactive: false
 	},
 	pan: {
 		interactive: false
